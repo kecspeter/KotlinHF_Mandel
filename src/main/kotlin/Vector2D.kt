@@ -54,4 +54,11 @@ class Vector2D (var x: Double,var y: Double)
         return "($x , $y)"
     }
 
+    fun equals(v: Vector2D): Boolean
+    {
+        if(x == v.x && y == v.y)
+            return true
+        return false
+    }
+
 }
