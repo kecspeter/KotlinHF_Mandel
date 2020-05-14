@@ -33,21 +33,12 @@ class AppWindow : Application()
     private var isDragging: Boolean = false
     private var lastDragEvent: MouseEvent? = null
 
-
     private var mainScreen = ScreenImageHandler(WIDTH, HEIGHT)
-    private var lastTime: Long = 0
-
 
     private var mode = 0
 
-
-
     var speedTest = mutableListOf<String>()
     var speedTestMode  = 0
-
-
-
-
 
     override fun start(primaryStage: Stage?)
     {
@@ -62,14 +53,11 @@ class AppWindow : Application()
             root.children.add(canvas)
             graphicsContext = canvas.graphicsContext2D
 
-
-
             prepareActionHandlers()
             prepareAnimationTimer()
 
             primaryStage.scene = mainScene
             primaryStage.show()
-
 
             getHelp()
         }
@@ -121,13 +109,14 @@ class AppWindow : Application()
                 }
                 1 -> mode = 0
             }
+            updatePosition()
         }
 
         if (keyEvent.code == KeyCode.R)
         {
             pos = Vector2D(-2.0,-0.75)
             zoom = 0.0025
-
+            mainScreen.flushJobs()
             updatePosition()
         }
         if (keyEvent.code == KeyCode.DIGIT1)
@@ -142,6 +131,11 @@ class AppWindow : Application()
         if(keyEvent.code == KeyCode.Q)
         {
             MandelbrotSet.INSTANCE.density++
+            when(mode)
+            {
+                0 -> MandelbrotSet.INSTANCE.density++
+                else -> JuliaSet.INSTANCE.density++
+            }
             updatePosition()
         }
 
@@ -226,6 +220,7 @@ class AppWindow : Application()
             updatePositionDrag(e)
             lastDragEvent = e
         }
+        if(System.currentTimeMillis().toInt() % 3 == 0)
         updatePosition()
     }
 
@@ -270,7 +265,7 @@ class AppWindow : Application()
     {
         mainScreen.updateScreen(graphicsContext)
         graphicsContext.fillRect(pivot.x-1, pivot.y-1, 3.0, 3.0)
-        graphicsContext.fillText("Set iteration (res): ${MandelbrotSet.INSTANCE.density}",5.0, res.y-50.0)
+        graphicsContext.fillText("Set iteration (res): ${if(mode == 0) MandelbrotSet.INSTANCE.density else JuliaSet.INSTANCE.density}",5.0, res.y-50.0)
         graphicsContext.fillText("Pivot pos: ${pos.x + pivot.x*zoom}, ${pos.y + pivot.y*zoom}",5.0, res.y-20.0)
         graphicsContext.fillText("Mode: " +
                 "${when(mode){
