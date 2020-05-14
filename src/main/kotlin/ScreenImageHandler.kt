@@ -7,7 +7,7 @@ class ScreenImageHandler(width: Int, height: Int)
     private val workerScheduler = WorkerScheduler()
 
     private var mainImage: WritableImage = WritableImage(width, height)
-    var chunk = Vector2D(160.0,96.0)
+    var chunk = Vector2D(96.0,96.0)
 
     private var frame = mutableListOf<RegionData>()
     private var frameStartTime = 0L
@@ -85,7 +85,6 @@ class ScreenImageHandler(width: Int, height: Int)
             for(x in 0 until regionImage.width.toInt())
             {
                 if(x+startPos.x.toInt() >= mainImage.width || y+startPos.y.toInt() >= mainImage.height) {
-                    //println("kilépés $x, $y ponton")
                     break
                 }
                 val c : Color = regionImage.pixelReader.getColor(x,y)

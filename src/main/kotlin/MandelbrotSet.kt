@@ -22,7 +22,7 @@ class MandelbrotSet : InfiniteSet
     override fun calcRegion(s: Vector2D, e: Vector2D, res: Double): WritableImage
     {
         val region = WritableImage(e.x.toInt(), e.y.toInt())
-        
+
         val internalRes : Double = res
         val internalResPos = Vector2D(s.x,s.y)
         val pixelPos = Vector2D(0.0,0.0)
