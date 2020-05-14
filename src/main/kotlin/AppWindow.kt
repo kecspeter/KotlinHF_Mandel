@@ -313,9 +313,8 @@ class AppWindow : Application()
                     {
                         frameTimes.add(mainScreen.frameTime)
                         break
-                        Thread.sleep(10)
                     }
-
+                    Thread.sleep(10)
                 }
             }
             benchWriter.testSession(frameTimes,"chunkSize$i")
@@ -332,7 +331,6 @@ class AppWindow : Application()
                 "Fix chunkSize 64,64\n" +
                 "chunkSize from 2 to 256\n" +
                 "redraw count: 32\n")
-        val threadCountMax = 8
         mainScreen.chunk = Vector2D(64.0, 64.0)
 
         for(i in 1..256)
@@ -353,8 +351,8 @@ class AppWindow : Application()
                     {
                         frameTimes.add(mainScreen.frameTime)
                         break
-                        Thread.sleep(10)
                     }
+                    Thread.sleep(10)
 
                 }
             }
