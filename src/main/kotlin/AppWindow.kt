@@ -15,8 +15,8 @@ class AppWindow : Application()
 {
     companion object
     {
-        private const val WIDTH = 1280
-        private const val HEIGHT = 768
+        private const val WIDTH = 960
+        private const val HEIGHT = 960
 
 
     }
@@ -37,8 +37,8 @@ class AppWindow : Application()
 
     private var mode = 0
 
-    var speedTest = mutableListOf<String>()
-    var speedTestMode  = 0
+    var benchmarkMode  = 0
+    private val benchWriter = BenchmarkWriter()
 
     override fun start(primaryStage: Stage?)
     {
@@ -114,18 +114,19 @@ class AppWindow : Application()
 
         if (keyEvent.code == KeyCode.R)
         {
-            pos = Vector2D(-2.0,-0.75)
-            zoom = 0.0025
-            mainScreen.flushJobs()
-            updatePosition()
+            resetWindow()
         }
-        if (keyEvent.code == KeyCode.DIGIT1)
+        if (keyEvent.code == KeyCode.U)
         {
-            speedTestMode = 1
+            benchmarkMode = 1
+            resetWindow()
+            bench1()
         }
-        if(keyEvent.code == KeyCode.DIGIT2)
+        if(keyEvent.code == KeyCode.I)
         {
-            speedTestMode = 2
+            benchmarkMode = 2
+            resetWindow()
+            bench2()
         }
 
         if(keyEvent.code == KeyCode.Q)
@@ -157,8 +158,8 @@ class AppWindow : Application()
         graphicsContext.fillText("Keyboard:\n" +
                 "H - Help\n" +
                 "R - Reset position and zoom\n" +
-                "NUM1 - Benchmark mode 1\n" +
-                "NUM2 - Benchmark mode 2\n" +
+                "U - Benchmark mode 1\n" +
+                "I - Benchmark mode 2\n" +
                 "Q - Increase resolution of the current (Mandelbrot/Julia)set\n" +
                 "A - Decrease resolution of the current (Mandelbrot/Julia)set\n" +
                 "M - Switch between Julia and Mandelbrot\n" +
@@ -173,8 +174,8 @@ class AppWindow : Application()
         println("Keyboard:\n" +
                 "H - Help\n" +
                 "R - Reset position and zoom\n" +
-                "NUM1 - Benchmark mode 1\n" +
-                "NUM2 - Benchmark mode 2\n" +
+                "U - Benchmark mode 1\n" +
+                "I - Benchmark mode 2\n" +
                 "Q - Increase resolution of the current (Mandelbrot/Julia)set\n" +
                 "A - Decrease resolution of the current (Mandelbrot/Julia)set" +
                 "M - Switch between Julia and Mandelbrot\n")
@@ -261,6 +262,15 @@ class AppWindow : Application()
         mainScreen.newJob(pos, res, zoom, mode)
     }
 
+    private fun resetWindow()
+    {
+        pos = Vector2D(-2.0,-0.75)
+        zoom = 0.0025
+        mainScreen.flushJobs()
+        updatePosition()
+    }
+
+
     fun updateScreen(curr: Long)
     {
         mainScreen.updateScreen(graphicsContext)
@@ -273,9 +283,87 @@ class AppWindow : Application()
                     else ->"Julia"
                 }
         }",5.0, res.y-10.0)
+    }
 
 
-        //println(curr-lastTime)
+    private fun bench1()
+    {
+        println("TestMode 1 started\n" +
+                "Fix 8 thread\n" +
+                "chunkSize from 2 to 256\n" +
+                "redraw count: 32\n")
+        val threadCountMax = 8
+
+        mainScreen.setMaxThread(threadCountMax)
+        for(i in 2..256)
+        {
+            mainScreen.chunk = Vector2D(i*1.0, i*1.0)
+            println("chunk size: (${mainScreen.chunk.x},${mainScreen.chunk.y})")
+
+            var frameTimes = mutableListOf<Long>()
+
+            for(j in 1..32)
+            {
+                resetWindow()
+
+                while (true)
+                {
+                    mainScreen.checkFrameTime()
+                    if(mainScreen.framecompleted)
+                    {
+                        frameTimes.add(mainScreen.frameTime)
+                        break
+                        Thread.sleep(10)
+                    }
+
+                }
+            }
+            benchWriter.testSession(frameTimes,"chunkSize$i")
+
+        }
+        println("TestMode ended")
+        benchmarkMode = 0
+        benchWriter.writeOut("chunkSizeBench")
+    }
+
+    private fun bench2()
+    {
+        println("TestMode 2 started\n" +
+                "Fix chunkSize 64,64\n" +
+                "chunkSize from 2 to 256\n" +
+                "redraw count: 32\n")
+        val threadCountMax = 8
+        mainScreen.chunk = Vector2D(64.0, 64.0)
+
+        for(i in 1..256)
+        {
+
+            println("threadCount: (${i})")
+            mainScreen.setMaxThread(i)
+            var frameTimes = mutableListOf<Long>()
+
+            for(j in 1..32)
+            {
+                resetWindow()
+
+                while (true)
+                {
+                    mainScreen.checkFrameTime()
+                    if(mainScreen.framecompleted)
+                    {
+                        frameTimes.add(mainScreen.frameTime)
+                        break
+                        Thread.sleep(10)
+                    }
+
+                }
+            }
+            benchWriter.testSession(frameTimes,"threadCount$i")
+
+        }
+        println("TestMode ended")
+        benchmarkMode = 0
+        benchWriter.writeOut("threadCountBench")
     }
 
 
