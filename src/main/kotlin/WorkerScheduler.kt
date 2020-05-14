@@ -10,8 +10,8 @@ import kotlin.system.measureTimeMillis
 
 class WorkerScheduler
 {
-    private val maxThread: Int = 8
-    private val workerDispatcher = Executors.newFixedThreadPool(maxThread).asCoroutineDispatcher()          //Shaman help
+    var maxThread: Int = 16
+    private var workerDispatcher = Executors.newFixedThreadPool(maxThread).asCoroutineDispatcher()          //Shaman help
     private var workerChannel = Channel<RegionData>()
 
     private var renderTime : Long = 0
@@ -32,6 +32,15 @@ class WorkerScheduler
     {
         workerChannel.cancel(CancellationException("UpdatedRenderPositions"))
         workerChannel = Channel<RegionData>()
+        startWorkers()
+    }
+
+    public fun restartScheduler()
+    {
+        workerChannel.cancel(CancellationException("UpdatedRenderPositions"))
+        workerChannel = Channel<RegionData>()
+        workerDispatcher.close()
+        workerDispatcher = Executors.newFixedThreadPool(maxThread).asCoroutineDispatcher()
         startWorkers()
     }
 
@@ -62,7 +71,6 @@ class WorkerScheduler
         var region: WritableImage;
         val interval = measureTimeMillis()
         {
-            //delay(Random(10).nextLong(500))
             when(r.type)
             {
                 0 -> region =
@@ -75,12 +83,7 @@ class WorkerScheduler
             r.screen.copyRegion(region, r.RegionStartPos)
         }
 
-        renderTime += interval
-        if(r.RegionStartPos.x  == 0.0 && r.RegionStartPos.y == 0.0)
-        {
-            println("Frame time: $renderTime")
-            renderTime = 0
-        }
+        r.frameTime = interval
     }
 
 }
