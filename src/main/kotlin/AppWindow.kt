@@ -195,7 +195,6 @@ class AppWindow : Application()
 
     private fun mouseClicked()
     {
-        //println("mouse click")
         if(isDragging)
         {
             isDragging = false
@@ -206,7 +205,6 @@ class AppWindow : Application()
 
     private fun mouseDrag(e: MouseEvent)
     {
-        //println("mouse drag")
         if(!isDragging)
         {
             isDragging = true
@@ -227,7 +225,6 @@ class AppWindow : Application()
 
     private fun mouseScroll(e: ScrollEvent)
     {
-        //println("mouse scroll")
         val oldzoom = zoom
 
         zoom = (if (e.deltaY > 0) zoom / 2 else zoom * 2)
@@ -247,8 +244,6 @@ class AppWindow : Application()
         pos.x -= (e.x- (lastDragEvent?.x ?: 0.0)) * zoom
         pos.y -= (e.y- (lastDragEvent?.y ?: 0.0)) * zoom
 
-        //var lastPos = Vector2D(lastDragEvent?.x ?: 0.0, lastDragEvent?.y ?: 0.0)
-        //var currPos = Vector2D(e.x,e.y)
         updatePivot()
     }
 
