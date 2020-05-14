@@ -7,8 +7,7 @@ class ScreenImageHandler(width: Int, height: Int)
     private val workerScheduler = WorkerScheduler()
 
     private var mainImage: WritableImage = WritableImage(width, height);
-    var chunk = Vector2D(150.0,150.0)
-
+    var chunk = Vector2D(160.0,96.0)
 
 
     private fun calcRegion(r: RegionData)
@@ -61,8 +60,5 @@ class ScreenImageHandler(width: Int, height: Int)
             }
 
         }
-
-        //println("megcsináltam a másolást")
-
     }
 }
