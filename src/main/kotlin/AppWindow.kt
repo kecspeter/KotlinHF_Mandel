@@ -85,7 +85,7 @@ class AppWindow : Application()
         timer = object: AnimationTimer() {
             override fun handle(now: Long)
             {
-                updateScreen(now)
+                updateScreen()
             }
         }
         timer.start()
@@ -144,8 +144,8 @@ class AppWindow : Application()
         {
             when(mode)
             {
-                0 -> if(MandelbrotSet.INSTANCE.density > 1) MandelbrotSet.INSTANCE.density-- else ;
-                else -> if(JuliaSet.INSTANCE.density > 1) JuliaSet.INSTANCE.density-- else ;
+                0 -> if(MandelbrotSet.INSTANCE.density > 1) MandelbrotSet.INSTANCE.density--
+                else -> if(JuliaSet.INSTANCE.density > 1) JuliaSet.INSTANCE.density--
             }
             updatePosition()
         }
@@ -188,12 +188,12 @@ class AppWindow : Application()
     private fun updateMouseInput()
     {
 
-        mainScene.onMouseClicked = EventHandler { event -> mouseClicked(event)}
+        mainScene.onMouseClicked = EventHandler { mouseClicked() }
         mainScene.onMouseDragged = EventHandler { event -> mouseDrag(event)}
         mainScene.onScroll = EventHandler { event -> mouseScroll(event) }
     }
 
-    private fun mouseClicked(e: MouseEvent)
+    private fun mouseClicked()
     {
         //println("mouse click")
         if(isDragging)
@@ -228,10 +228,11 @@ class AppWindow : Application()
     private fun mouseScroll(e: ScrollEvent)
     {
         //println("mouse scroll")
-        var oldzoom = zoom
+        val oldzoom = zoom
 
-        zoom = (if(e.deltaY>0) zoom/2 else zoom*2)
-
+        zoom = (if (e.deltaY > 0) zoom / 2 else zoom * 2)
+        if(zoom > 0.0025)
+            zoom = 0.0025
 
         pos.x = pos.x + (res.x/2) * oldzoom - (res.x/2) * zoom
         pos.y = pos.y + (res.y/2) * oldzoom - (res.y/2) * zoom
@@ -246,8 +247,8 @@ class AppWindow : Application()
         pos.x -= (e.x- (lastDragEvent?.x ?: 0.0)) * zoom
         pos.y -= (e.y- (lastDragEvent?.y ?: 0.0)) * zoom
 
-        var lastPos = Vector2D(lastDragEvent?.x ?: 0.0, lastDragEvent?.y ?: 0.0)
-        var currPos = Vector2D(e.x,e.y)
+        //var lastPos = Vector2D(lastDragEvent?.x ?: 0.0, lastDragEvent?.y ?: 0.0)
+        //var currPos = Vector2D(e.x,e.y)
         updatePivot()
     }
 
@@ -266,23 +267,25 @@ class AppWindow : Application()
     {
         pos = Vector2D(-2.0,-0.75)
         zoom = 0.0025
+        MandelbrotSet.INSTANCE.density = 25
+        JuliaSet.INSTANCE.density = 60
         mainScreen.flushJobs()
         updatePosition()
     }
 
 
-    fun updateScreen(curr: Long)
+    fun updateScreen()
     {
         mainScreen.updateScreen(graphicsContext)
         graphicsContext.fillRect(pivot.x-1, pivot.y-1, 3.0, 3.0)
-        graphicsContext.fillText("Set iteration (res): ${if(mode == 0) MandelbrotSet.INSTANCE.density else JuliaSet.INSTANCE.density}",5.0, res.y-50.0)
-        graphicsContext.fillText("Pivot pos: ${pos.x + pivot.x*zoom}, ${pos.y + pivot.y*zoom}",5.0, res.y-20.0)
+        graphicsContext.fillText("Set iteration (res): ${if(mode == 0) MandelbrotSet.INSTANCE.density else JuliaSet.INSTANCE.density}",5.0, res.y-40.0)
+        graphicsContext.fillText("Pivot pos: ${pos.x + pivot.x*zoom}, ${pos.y + pivot.y*zoom}",5.0, res.y-30.0)
         graphicsContext.fillText("Mode: " +
-                "${when(mode){
+                when(mode){
                     0 -> "Mandel"
                     else ->"Julia"
-                }
-        }",5.0, res.y-10.0)
+                },5.0, res.y-20.0)
+        graphicsContext.fillText("Zoom: ${0.0025/zoom}",5.0, res.y-10.0)
     }
 
 
@@ -300,7 +303,7 @@ class AppWindow : Application()
             mainScreen.chunk = Vector2D(i*1.0, i*1.0)
             println("chunk size: (${mainScreen.chunk.x},${mainScreen.chunk.y})")
 
-            var frameTimes = mutableListOf<Long>()
+            val frameTimes = mutableListOf<Long>()
 
             for(j in 1..32)
             {
@@ -338,7 +341,7 @@ class AppWindow : Application()
 
             println("threadCount: (${i})")
             mainScreen.setMaxThread(i)
-            var frameTimes = mutableListOf<Long>()
+            val frameTimes = mutableListOf<Long>()
 
             for(j in 1..32)
             {
