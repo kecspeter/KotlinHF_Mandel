@@ -4,16 +4,17 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import java.util.concurrent.CancellationException
 import java.util.concurrent.Executors
+import javax.swing.plaf.synth.Region
+import kotlin.random.Random
 import kotlin.system.measureTimeMillis
 
 class WorkerScheduler
 {
-    private val maxThread: Int = 16
-    private val workerContext = newFixedThreadPoolContext(maxThread,"WorkerContext")
+    private val maxThread: Int = 8
     private val workerDispatcher = Executors.newFixedThreadPool(maxThread).asCoroutineDispatcher()          //Shaman help
-    private val workerChannel = Channel<RegionData>()
+    private var workerChannel = Channel<RegionData>()
 
-
+    private var renderTime : Long = 0
     init
     {
         startWorkers()
@@ -21,7 +22,6 @@ class WorkerScheduler
 
     public fun addTask(r: RegionData)
     {
-        //println("TaskAdd")
         GlobalScope.launch(workerDispatcher)
         {
             workerChannel.send(r)
@@ -31,6 +31,8 @@ class WorkerScheduler
     public fun clearTasks()
     {
         workerChannel.cancel(CancellationException("UpdatedRenderPositions"))
+        workerChannel = Channel<RegionData>()
+        startWorkers()
     }
 
     public fun startWorkers()
@@ -46,22 +48,12 @@ class WorkerScheduler
 
     private suspend fun workerTask()
     {
-        //println("WorkerStarted")
         while(true)
         {
-            /*
-            workerChannel.consumeEach {
-                mandelJob(it)
-                println("consumed $it")
-            }
-            */
             for(r in workerChannel)
             {
-                //println("consumed $r")
                 workerJob(r)
             }
-            //delay(200)
-            //println("No task")
         }
     }
 
@@ -70,6 +62,7 @@ class WorkerScheduler
         var region: WritableImage;
         val interval = measureTimeMillis()
         {
+            //delay(Random(10).nextLong(500))
             when(r.type)
             {
                 0 -> region =
@@ -79,11 +72,15 @@ class WorkerScheduler
                     JuliaSet.INSTANCE.calcRegion(r.InnerStartPos, r.RegionSize, r.InnerZoom)
             }
 
-            //println("calc completed")
             r.screen.copyRegion(region, r.RegionStartPos)
         }
 
-        //println("interval: $interval")
+        renderTime += interval
+        if(r.RegionStartPos.x  == 0.0 && r.RegionStartPos.y == 0.0)
+        {
+            println("Frame time: $renderTime")
+            renderTime = 0
+        }
     }
 
 }
