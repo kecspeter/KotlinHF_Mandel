@@ -22,13 +22,13 @@ class JuliaSet : InfiniteSet
 
     override fun calcRegion(s: Vector2D, e: Vector2D, res: Double) : WritableImage
     {
-        var region = WritableImage(e.x.toInt(), e.y.toInt())
+        val region = WritableImage(e.x.toInt(), e.y.toInt())
         val c: Color = Color.WHITE
         val c2: Color = Color.ROYALBLUE
 
-        var internalRes : Double = res
-        var internalResPos = Vector2D(s.x,s.y)
-        var pixelPos = Vector2D(0.0,0.0)
+        val internalRes : Double = res
+        val internalResPos = Vector2D(s.x,s.y)
+        val pixelPos = Vector2D(0.0,0.0)
 
 
         while (pixelPos.y < e.y.toInt())
@@ -36,7 +36,7 @@ class JuliaSet : InfiniteSet
             while (pixelPos.x < e.x.toInt())
             {
 
-                var pixelResult = calcPixel(internalResPos)
+                val pixelResult = calcPixel(internalResPos)
                 if(pixelResult>max)
                     println(pixelResult)
                 var pixelColor: Color
@@ -47,7 +47,7 @@ class JuliaSet : InfiniteSet
                 }
                 if(pixelResult/(max+1) in 0.0..1.0)
                 {
-                    pixelColor = Color.hsb(ln(pixelResult/(max+1)), (pixelResult / (max + 1)),1.0.toDouble())
+                    pixelColor = Color.hsb(ln(pixelResult/(max+1)), (pixelResult / (max + 1)), 1.0)
                 }
 
                 region.pixelWriter.setColor(pixelPos.x.toInt(), pixelPos.y.toInt(), pixelColor)
@@ -88,6 +88,6 @@ class JuliaSet : InfiniteSet
 
     override fun colorPixel(pixelResult: Double): Color
     {
-        TODO("Not yet implemented")
+        return Color.ALICEBLUE
     }
 }

@@ -1,30 +1,18 @@
-import kotlin.math.hypot
-
-class Complex
-{
-    var Re: Double
-    var Im: Double
-    constructor(re: Double, im: Double)
-    {
-        Re = re
-        Im = im
-    }
+class Complex(private var re: Double, private var im: Double) {
 
     fun dist(): Double
     {
-        //return hypot(Re, Im)
-        return Re*Re-Im*Im
-
+        return re*re-im*im
     }
-
 
     fun mul(): Complex
     {
-        return Complex(Re*Re-Im*Im, Re*Im+Im*Re)
+        return Complex(re*re-im*im, re*im+im*re)
     }
+
     fun sum(c: Complex): Complex
     {
-        return Complex(Re + c.Re, Im + c.Im)
+        return Complex(re + c.re, im + c.im)
     }
 
 }

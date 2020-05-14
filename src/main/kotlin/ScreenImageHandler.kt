@@ -6,11 +6,11 @@ class ScreenImageHandler(width: Int, height: Int)
 {
     private val workerScheduler = WorkerScheduler()
 
-    private var mainImage: WritableImage = WritableImage(width, height);
+    private var mainImage: WritableImage = WritableImage(width, height)
     var chunk = Vector2D(160.0,96.0)
 
-    var frame = mutableListOf<RegionData>()
-    var frameStartTime = 0L
+    private var frame = mutableListOf<RegionData>()
+    private var frameStartTime = 0L
     var frameTime = -1L
     var framecompleted = false
 
@@ -29,10 +29,10 @@ class ScreenImageHandler(width: Int, height: Int)
     fun newJob(screenStartPos: Vector2D, screenRes: Vector2D, screenZoom: Double, mode: Int)
     {
         frameStartTime = System.currentTimeMillis()
-        var threadStartPos = Vector2D(0.0,0.0)
+        val threadStartPos = Vector2D(0.0,0.0)
         while (threadStartPos.y < screenRes.y)
         {
-            var r = RegionData(ImageStartPos = screenStartPos, RegionSize = chunk, RegionStartPos = Vector2D(threadStartPos.x, threadStartPos.y), InnerZoom = screenZoom, type = mode, screen = this, InnerStartPos = screenStartPos+threadStartPos*screenZoom, frameTime = -1)
+            val r = RegionData(RegionStartPos = Vector2D(threadStartPos.x, threadStartPos.y), RegionSize = chunk, InnerStartPos = screenStartPos+threadStartPos*screenZoom, InnerZoom = screenZoom, type = mode, screen = this, frameTime = -1)
             frame.add(r)
             calcRegion(r)
 
@@ -86,9 +86,9 @@ class ScreenImageHandler(width: Int, height: Int)
             {
                 if(x+startPos.x.toInt() >= mainImage.width || y+startPos.y.toInt() >= mainImage.height) {
                     //println("kilépés $x, $y ponton")
-                    break;
+                    break
                 }
-                var c : Color = regionImage.pixelReader.getColor(x,y)
+                val c : Color = regionImage.pixelReader.getColor(x,y)
                 mainImage.pixelWriter.setColor(x+startPos.x.toInt(),y+startPos.y.toInt(),c)
             }
 

@@ -9,7 +9,6 @@ class MandelbrotSet : InfiniteSet
     private val c1: Color = Color.WHITE
     private val c2: Color = Color.ROYALBLUE
 
-
     private object HOLDER
     {
         val INSTANCE = MandelbrotSet()
@@ -20,17 +19,13 @@ class MandelbrotSet : InfiniteSet
         val INSTANCE: MandelbrotSet by lazy { HOLDER.INSTANCE }
     }
 
-
     override fun calcRegion(s: Vector2D, e: Vector2D, res: Double): WritableImage
     {
-        var region = WritableImage(e.x.toInt(), e.y.toInt())
-        //println("calcRegion created size: (${e.x},${e.y})")
-        val c: Color = Color.WHITE
-        val c2: Color = Color.ROYALBLUE
-
-        var internalRes : Double = res
-        var internalResPos: Vector2D = Vector2D(s.x,s.y)
-        var pixelPos : Vector2D = Vector2D(0.0,0.0)
+        val region = WritableImage(e.x.toInt(), e.y.toInt())
+        
+        val internalRes : Double = res
+        val internalResPos = Vector2D(s.x,s.y)
+        val pixelPos = Vector2D(0.0,0.0)
 
 
         while (pixelPos.y < e.y.toInt())
@@ -38,7 +33,7 @@ class MandelbrotSet : InfiniteSet
             while (pixelPos.x < e.x.toInt())
             {
 
-                var pixelResult = calcPixel(internalResPos)
+                val pixelResult = calcPixel(internalResPos)
                 region.pixelWriter.setColor(pixelPos.x.toInt(), pixelPos.y.toInt(), colorPixel(pixelResult))
 
                 internalResPos.x += internalRes
@@ -57,7 +52,7 @@ class MandelbrotSet : InfiniteSet
     override fun calcPixel(pixel: Vector2D): Double
     {
         var res = Complex(0.0,0.0)
-        var c = Complex(pixel.x, pixel.y)
+        val c = Complex(pixel.x, pixel.y)
         for (i in 0..density)
         {
 

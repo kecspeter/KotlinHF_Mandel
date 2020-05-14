@@ -37,7 +37,7 @@ class AppWindow : Application()
 
     private var mode = 0
 
-    var benchmarkMode  = 0
+    private var benchmarkMode  = 0
     private val benchWriter = BenchmarkWriter()
 
     override fun start(primaryStage: Stage?)
@@ -289,7 +289,7 @@ class AppWindow : Application()
         println("TestMode 1 started\n" +
                 "Fix 8 thread\n" +
                 "chunkSize from 2 to 256\n" +
-                "redraw count: 32\n")
+                "redraw count: 16\n")
         val threadCountMax = 8
 
         mainScreen.setMaxThread(threadCountMax)
@@ -300,7 +300,7 @@ class AppWindow : Application()
 
             val frameTimes = mutableListOf<Long>()
 
-            for(j in 1..32)
+            for(j in 1..16)
             {
                 resetWindow()
 
@@ -328,7 +328,7 @@ class AppWindow : Application()
         println("TestMode 2 started\n" +
                 "Fix chunkSize 64,64\n" +
                 "chunkSize from 2 to 256\n" +
-                "redraw count: 32\n")
+                "redraw count: 16\n")
         mainScreen.chunk = Vector2D(64.0, 64.0)
 
         for(i in 1..256)
@@ -338,7 +338,7 @@ class AppWindow : Application()
             mainScreen.setMaxThread(i)
             val frameTimes = mutableListOf<Long>()
 
-            for(j in 1..32)
+            for(j in 1..16)
             {
                 resetWindow()
 

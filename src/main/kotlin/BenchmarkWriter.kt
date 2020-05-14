@@ -1,10 +1,8 @@
-import kotlinx.coroutines.internal.artificialFrame
 import java.io.File
 
 class BenchmarkWriter
 {
-    var mode = 0
-    var testData = mutableListOf<String>()
+    private var testData = mutableListOf<String>()
 
     fun writeOut(name: String)
     {
