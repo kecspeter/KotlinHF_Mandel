@@ -9,6 +9,10 @@ class ScreenImageHandler(width: Int, height: Int)
     private var mainImage: WritableImage = WritableImage(width, height);
     var chunk = Vector2D(160.0,96.0)
 
+    var frame = mutableListOf<RegionData>()
+    var frameStartTime = 0L
+    var frameTime = -1L
+    var framecompleted = false
 
     private fun calcRegion(r: RegionData)
     {
@@ -18,14 +22,18 @@ class ScreenImageHandler(width: Int, height: Int)
     fun flushJobs()
     {
         workerScheduler.clearTasks()
+        frame.clear()
+        framecompleted = false
     }
 
     fun newJob(screenStartPos: Vector2D, screenRes: Vector2D, screenZoom: Double, mode: Int)
     {
+        frameStartTime = System.currentTimeMillis()
         var threadStartPos = Vector2D(0.0,0.0)
         while (threadStartPos.y < screenRes.y)
         {
-            var r = RegionData(ImageStartPos = screenStartPos, RegionSize = chunk, RegionStartPos = Vector2D(threadStartPos.x, threadStartPos.y), InnerZoom = screenZoom, type = mode, screen = this, InnerStartPos = screenStartPos+threadStartPos*screenZoom)
+            var r = RegionData(ImageStartPos = screenStartPos, RegionSize = chunk, RegionStartPos = Vector2D(threadStartPos.x, threadStartPos.y), InnerZoom = screenZoom, type = mode, screen = this, InnerStartPos = screenStartPos+threadStartPos*screenZoom, frameTime = -1)
+            frame.add(r)
             calcRegion(r)
 
             threadStartPos.x += chunk.x
@@ -42,6 +50,31 @@ class ScreenImageHandler(width: Int, height: Int)
     {
         graphicsContext.drawImage(mainImage, 0.0,0.0, mainImage.width, mainImage.height)
 
+
+    }
+
+    fun setMaxThread(n : Int)
+    {
+        workerScheduler.maxThread = n
+        workerScheduler.restartScheduler()
+        flushJobs()
+    }
+
+    fun checkFrameTime()
+    {
+        for (r in frame)
+        {
+            if (r.frameTime == -1L)
+            {
+                return
+            }
+        }
+        if (!framecompleted)
+        {
+            frameTime = System.currentTimeMillis() - frameStartTime
+            println("total frameTime: $frameTime")
+            framecompleted = true
+        }
     }
 
     fun copyRegion(regionImage: WritableImage, startPos: Vector2D)
