@@ -1,3 +1,8 @@
+package drawing
+
+import benchmark.BenchmarkWriter
+import data.Complex
+import data.Vector2D
 import javafx.animation.AnimationTimer
 import javafx.application.Application
 import javafx.event.EventHandler
@@ -10,31 +15,36 @@ import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
 import javafx.scene.input.ScrollEvent
 import javafx.stage.Stage
+import sets.JuliaSet
+import sets.MandelbrotSet
 
 class AppWindow : Application()
 {
     companion object
     {
-        private const val WIDTH = 960
-        private const val HEIGHT = 960
-
-
+        var startWidth = 960
+        var startHeight = 960
+        var startMaxThread = 16
+        var startChunkSize = Vector2D(96.0,96.0)
     }
 
+    //JavaFX vars
     private lateinit var mainScene: Scene
     private lateinit var graphicsContext: GraphicsContext
     private lateinit var timer: AnimationTimer
 
-    private var res: Vector2D = Vector2D(WIDTH.toDouble(), HEIGHT.toDouble())
-    private var pos: Vector2D = Vector2D(-2.0,-0.75)
-    private var pivot: Vector2D = Vector2D(pos.x+res.x/2,pos.y+res.y/2)
+    //In Set position
+    private var res: Vector2D = Vector2D(startWidth.toDouble(), startHeight.toDouble())
+    private var pos: Vector2D = Vector2D(-2.0, -0.75)
+    private var pivot: Vector2D = Vector2D(pos.x + res.x / 2, pos.y + res.y / 2)
     private var zoom: Double = 0.0025
 
+    //Mouse
     private var isDragging: Boolean = false
     private var lastDragEvent: MouseEvent? = null
 
-    private var mainScreen = ScreenImageHandler(WIDTH, HEIGHT)
-
+    //Control
+    private var mainScreen = ScreenImageHandler(startWidth, startHeight)
     private var mode = 0
 
     private var benchmarkMode  = 0
@@ -44,23 +54,32 @@ class AppWindow : Application()
     {
         if(primaryStage != null)
         {
-            primaryStage.title = "MandelApp"
-
             val root = Group()
             mainScene = Scene(root)
 
-            val canvas = Canvas(WIDTH.toDouble(), HEIGHT.toDouble())
+            val canvas = Canvas(startWidth.toDouble(), startHeight.toDouble())
             root.children.add(canvas)
             graphicsContext = canvas.graphicsContext2D
+
+            primaryStage.apply {
+                title = "MandelApp"
+                isResizable = false
+                scene = mainScene
+            }
 
             prepareActionHandlers()
             prepareAnimationTimer()
 
-            primaryStage.scene = mainScene
             primaryStage.show()
 
             getHelp()
         }
+    }
+
+    override fun stop()
+    {
+        mainScreen.stopThreads()
+        super.stop()
     }
 
     private fun prepareActionHandlers()
@@ -96,7 +115,18 @@ class AppWindow : Application()
 
         if (keyEvent.code == KeyCode.H)
         {
-            getHelp()
+            println("!Help:\n")
+            println("Keyboard:\n" +
+                    "H - Help\n" +
+                    "R - Reset position and zoom\n" +
+                    "U - Benchmark mode 1\n" +
+                    "I - Benchmark mode 2\n" +
+                    "Q - Increase resolution of the current (Mandelbrot/Julia)set\n" +
+                    "A - Decrease resolution of the current (Mandelbrot/Julia)set" +
+                    "M - Switch between Julia and Mandelbrot\n")
+            println("Mouse:\n " +
+                    "Drag to change position\n" +
+                    "Scroll to zoom in/out\n")
         }
 
         if (keyEvent.code == KeyCode.M)
@@ -105,7 +135,7 @@ class AppWindow : Application()
             {
                 0 -> {
                     mode = 1
-                    JuliaSet.INSTANCE.c = Complex(pos.x + pivot.x*zoom, pos.y + pivot.y*zoom)
+                    JuliaSet.INSTANCE.c = Complex(pos.x + pivot.x * zoom, pos.y + pivot.y * zoom)
                 }
                 1 -> mode = 0
             }
@@ -169,19 +199,6 @@ class AppWindow : Application()
                 "Drag to change position\n" +
                 "Scroll to zoom in/out\n",
             250.0, 50.0)
-
-        println("\t\t\tHelp\n\n")
-        println("Keyboard:\n" +
-                "H - Help\n" +
-                "R - Reset position and zoom\n" +
-                "U - Benchmark mode 1\n" +
-                "I - Benchmark mode 2\n" +
-                "Q - Increase resolution of the current (Mandelbrot/Julia)set\n" +
-                "A - Decrease resolution of the current (Mandelbrot/Julia)set" +
-                "M - Switch between Julia and Mandelbrot\n")
-        println("Mouse:\n " +
-                "Drag to change position\n" +
-                "Scroll to zoom in/out\n")
 
     }
 
@@ -260,7 +277,7 @@ class AppWindow : Application()
 
     private fun resetWindow()
     {
-        pos = Vector2D(-2.0,-0.75)
+        pos = Vector2D(-2.0, -0.75)
         zoom = 0.0025
         MandelbrotSet.INSTANCE.density = 25
         JuliaSet.INSTANCE.density = 60
@@ -290,12 +307,12 @@ class AppWindow : Application()
                 "Fix 8 thread\n" +
                 "chunkSize from 2 to 256\n" +
                 "redraw count: 16\n")
-        val threadCountMax = 8
+        val threadCountMax = 16
 
         mainScreen.setMaxThread(threadCountMax)
         for(i in 2..256)
         {
-            mainScreen.chunk = Vector2D(i*1.0, i*1.0)
+            mainScreen.chunk = Vector2D(i * 1.0, i * 1.0)
             println("chunk size: (${mainScreen.chunk.x},${mainScreen.chunk.y})")
 
             val frameTimes = mutableListOf<Long>()
