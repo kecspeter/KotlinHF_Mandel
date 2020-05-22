@@ -1,15 +1,21 @@
+package jobscheduling
+
+import sets.JuliaSet
+import data.RegionData
+import drawing.AppWindow
 import javafx.scene.image.WritableImage
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import sets.MandelbrotSet
 import java.util.concurrent.CancellationException
 import java.util.concurrent.Executors
 import kotlin.system.measureTimeMillis
 
 class WorkerScheduler
 {
-    var maxThread: Int = 16
+    var maxThread: Int = AppWindow.startMaxThread
     private var workerDispatcher = Executors.newFixedThreadPool(maxThread).asCoroutineDispatcher()          //Shaman help
     private var workerChannel = Channel<RegionData>()
 
@@ -46,13 +52,18 @@ class WorkerScheduler
 
     fun restartScheduler()
     {
-        workerChannel.cancel(CancellationException("UpdatedRenderPositions"))
+        workerChannel.cancel(CancellationException("RestartWorkers"))
         workerChannel = Channel()
         workerDispatcher.close()
         workerDispatcher = Executors.newFixedThreadPool(maxThread).asCoroutineDispatcher()
         startWorkers()
     }
 
+    fun stop()
+    {
+        workerChannel.cancel(CancellationException("ApplicationExit"))
+        workerDispatcher.close()
+    }
 
 
     private suspend fun workerTask()
