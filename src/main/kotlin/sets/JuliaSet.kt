@@ -1,3 +1,7 @@
+package sets
+
+import data.Complex
+import data.Vector2D
 import javafx.scene.image.WritableImage
 import javafx.scene.paint.Color
 import kotlin.math.ln
@@ -6,7 +10,7 @@ class JuliaSet : InfiniteSet
 {
     var density: Long = 60
     private var max: Double = 255.0
-    var c = Complex( 0.34, -0.05)
+    var c = Complex(0.34, -0.05)
 
 
     private object HOLDER
@@ -27,8 +31,8 @@ class JuliaSet : InfiniteSet
         val c2: Color = Color.ROYALBLUE
 
         val internalRes : Double = res
-        val internalResPos = Vector2D(s.x,s.y)
-        val pixelPos = Vector2D(0.0,0.0)
+        val internalResPos = Vector2D(s.x, s.y)
+        val pixelPos = Vector2D(0.0, 0.0)
 
 
         while (pixelPos.y < e.y.toInt())
@@ -72,7 +76,7 @@ class JuliaSet : InfiniteSet
         {
             if(res.dist() < max)
             {
-                res = res.mul().sum(c)
+                res = res*res + c
             }
             else
             {
