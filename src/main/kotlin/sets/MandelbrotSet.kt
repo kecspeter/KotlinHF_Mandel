@@ -1,3 +1,7 @@
+package sets
+
+import data.Complex
+import data.Vector2D
 import javafx.scene.image.WritableImage
 import javafx.scene.paint.Color
 import kotlin.math.ln
@@ -24,8 +28,8 @@ class MandelbrotSet : InfiniteSet
         val region = WritableImage(e.x.toInt(), e.y.toInt())
 
         val internalRes : Double = res
-        val internalResPos = Vector2D(s.x,s.y)
-        val pixelPos = Vector2D(0.0,0.0)
+        val internalResPos = Vector2D(s.x, s.y)
+        val pixelPos = Vector2D(0.0, 0.0)
 
 
         while (pixelPos.y < e.y.toInt())
@@ -51,14 +55,14 @@ class MandelbrotSet : InfiniteSet
 
     override fun calcPixel(pixel: Vector2D): Double
     {
-        var res = Complex(0.0,0.0)
+        var res = Complex(0.0, 0.0)
         val c = Complex(pixel.x, pixel.y)
         for (i in 0..density)
         {
 
             if(res.dist() < max)
             {
-                res = res.mul().sum(c)
+                res = res*res + c
             }
             else
             {
