@@ -1,3 +1,6 @@
+package sets
+
+import data.Vector2D
 import javafx.scene.image.WritableImage
 import javafx.scene.paint.Color
 
