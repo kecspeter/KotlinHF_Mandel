@@ -1,40 +1,44 @@
+package drawing
+
+import data.RegionData
+import data.Vector2D
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.image.WritableImage
 import javafx.scene.paint.Color
+import jobscheduling.WorkerScheduler
 
 class ScreenImageHandler(width: Int, height: Int)
 {
     private val workerScheduler = WorkerScheduler()
 
     private var mainImage: WritableImage = WritableImage(width, height)
-    var chunk = Vector2D(96.0,96.0)
+    var chunk = AppWindow.startChunkSize
 
     private var frame = mutableListOf<RegionData>()
     private var frameStartTime = 0L
     var frameTime = -1L
     var framecompleted = false
 
-    private fun calcRegion(r: RegionData)
-    {
-        workerScheduler.addTask(r)
-    }
 
-    fun flushJobs()
-    {
-        workerScheduler.clearTasks()
-        frame.clear()
-        framecompleted = false
-    }
+
 
     fun newJob(screenStartPos: Vector2D, screenRes: Vector2D, screenZoom: Double, mode: Int)
     {
         frameStartTime = System.currentTimeMillis()
-        val threadStartPos = Vector2D(0.0,0.0)
+        val threadStartPos = Vector2D(0.0, 0.0)
         while (threadStartPos.y < screenRes.y)
         {
-            val r = RegionData(RegionStartPos = Vector2D(threadStartPos.x, threadStartPos.y), RegionSize = chunk, InnerStartPos = screenStartPos+threadStartPos*screenZoom, InnerZoom = screenZoom, type = mode, screen = this, frameTime = -1)
+            val r = RegionData(
+                    RegionStartPos = Vector2D(threadStartPos.x, threadStartPos.y),
+                    RegionSize = chunk,
+                    InnerStartPos = screenStartPos + threadStartPos * screenZoom,
+                    InnerZoom = screenZoom,
+                    type = mode,
+                    screen = this,
+                    frameTime = -1
+            )
             frame.add(r)
-            calcRegion(r)
+            workerScheduler.addTask(r)
 
             threadStartPos.x += chunk.x
             if (threadStartPos.x >= screenRes.x)
@@ -45,12 +49,22 @@ class ScreenImageHandler(width: Int, height: Int)
         }
     }
 
+    fun flushJobs()
+    {
+        workerScheduler.clearTasks()
+        frame.clear()
+        framecompleted = false
+    }
+
+    fun stopThreads()
+    {
+        workerScheduler.stop()
+    }
+
 
     fun updateScreen(graphicsContext: GraphicsContext)
     {
         graphicsContext.drawImage(mainImage, 0.0,0.0, mainImage.width, mainImage.height)
-
-
     }
 
     fun setMaxThread(n : Int)
