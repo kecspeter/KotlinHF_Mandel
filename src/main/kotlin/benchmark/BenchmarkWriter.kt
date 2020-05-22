@@ -1,3 +1,5 @@
+package benchmark
+
 import java.io.File
 
 class BenchmarkWriter
@@ -10,7 +12,6 @@ class BenchmarkWriter
             testData.forEach {
                 out.write("${it}\n")
             }
-            //out.close()
         }
     }
 
